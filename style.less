@@ -1,0 +1,199 @@
+/* Grid system */
+
+.grid-row {
+  position: relative;
+  margin-left: -10px;
+  margin-right: -10px;
+
+  &:before {
+    display: table;
+    content: " ";
+  }
+}
+.grid-row:after {
+  content: '';
+  clear: both;
+  display: block;
+}
+.grid-row {
+  .grid-col, .grid-col-1, .grid-col-2, .grid-col-3, .grid-col-4, .grid-col-5, .grid-col-6, .grid-col-7, .grid-col-8, .grid-col-9, .grid-col-10, .grid-col-11, .grid-col-12,
+  .grid-col-320-1, .grid-col-320-2, .grid-col-320-3, .grid-col-320-4, .grid-col-320-5, .grid-col-320-6, .grid-col-320-7, .grid-col-320-8, .grid-col-320-9, .grid-col-320-10, .grid-col-320-11, .grid-col-320-12,
+  .grid-col-480-1, .grid-col-480-2, .grid-col-480-3, .grid-col-480-4, .grid-col-480-5, .grid-col-480-6, .grid-col-480-7, .grid-col-480-8, .grid-col-480-9, .grid-col-480-10, .grid-col-480-11, .grid-col-480-12
+  .grid-col-tab-1, .grid-col-tab-2, .grid-col-tab-3, .grid-col-tab-4, .grid-col-tab-5, .grid-col-tab-6, .grid-col-tab-7, .grid-col-tab-8, .grid-col-tab-9, .grid-col-tab-10, .grid-col-tab-11, .grid-col-tab-12 {
+    float: left;
+    padding-left: 10px;
+    padding-right: 10px;
+    min-height: 1px;
+  }
+  .grid-col-1 {
+    width: 8.33%;
+  }
+  .grid-col-2 {
+    width: 16.66%;
+  }
+  .grid-col-3 {
+    width: 24.99%;
+  }
+  .grid-col-4 {
+    width: 33.33%;
+  }
+  .grid-col-5 {
+    width: 41.65%;
+  }
+  .grid-col-6 {
+    width: 50%;
+  }
+  .grid-col-7 {
+    width: 58.31%;
+  }
+  .grid-col-8 {
+    width: 66.64%;
+  }
+  .grid-col-9 {
+    width: 74.97%;
+  }
+  .grid-col-10 {
+    width: 83.3%;
+  }
+  .grid-col-11 {
+    width: 91.63%;
+  }
+  .grid-col-12 {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 767px){
+  .grid-row {
+    .grid-col, .grid-col-1, .grid-col-2, .grid-col-3, .grid-col-4, .grid-col-5, .grid-col-6, .grid-col-7, .grid-col-8, .grid-col-9, .grid-col-10, .grid-col-11, .grid-col-12,
+    .grid-col-320-1, .grid-col-320-2, .grid-col-320-3, .grid-col-320-4, .grid-col-320-5, .grid-col-320-6, .grid-col-320-7, .grid-col-320-8, .grid-col-320-9, .grid-col-320-10, .grid-col-320-11, .grid-col-320-12,
+    .grid-col-480-1, .grid-col-480-2, .grid-col-480-3, .grid-col-480-4, .grid-col-480-5, .grid-col-480-6, .grid-col-480-7, .grid-col-480-8, .grid-col-480-9, .grid-col-480-10, .grid-col-480-11, .grid-col-480-12
+    .grid-col-tab-1, .grid-col-tab-2, .grid-col-tab-3, .grid-col-tab-4, .grid-col-tab-5, .grid-col-tab-6, .grid-col-tab-7, .grid-col-tab-8, .grid-col-tab-9, .grid-col-tab-10, .grid-col-tab-11, .grid-col-tab-12 {
+      width: 100%;
+      float: none;
+    }
+  }
+}
+
+
+body.single-members {
+    article {
+      .entry-meta {
+        display: none;
+      }
+    }
+}
+
+
+//Verification letter
+
+.page-template-v_letter {
+
+  main.content {
+    padding-bottom: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    &:before {
+      display: none;
+    }
+  }
+
+  section.verification-letter-wrap {
+    .letter-header {
+
+      .letter-logo {
+        margin-bottom: 20px;
+        margin-top:150px;
+      }
+
+      .letter-title {
+        border-top: 2px solid black;
+        border-bottom: 2px solid black;
+        padding-top: 10px;
+        margin-bottom: 30px;
+
+        h1,h2 {
+          font-size: 2.2rem;
+          padding-top: 0;
+          text-transform: capitalize;
+        }
+      }
+
+      .letter-date {
+        padding-top: 10px;
+        font-size: 14px;
+      }
+    }
+
+    .letter-content {
+      font-size: 14px;
+      margin-bottom:60px;
+
+      span.jobtitle {
+        max-width: 290px;
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        vertical-align: -6px;
+        text-overflow: ellipsis;
+      }
+
+      div.letter-columns {
+        margin-bottom: 20px;
+        text-transform: capitalize;
+      }
+    }
+
+    .letter-footer {
+      font-size: 16px;
+      border-top: 1px solid black;
+      font-weight: bold;
+      text-align: center;
+    }
+  }
+}
+
+@media print {
+  a.print-hide {
+    display: none;
+  }
+}
+
+
+form {
+  .hidden {
+    position: absolute;
+    left: -10000px;
+  }
+
+  .form-error,.pms-field-error {
+    color: red;
+    p,label {
+      color: red;
+    }
+    input, select {
+      border-color: red;
+    }
+  }
+}
+
+
+figure.gag-search-results {
+  section {
+    width: 100%;
+  }
+
+  section.search-results-item {
+    border: 1px solid gray;
+    margin-bottom: 20px;
+    padding: 20px;
+
+    h4 {
+      padding-top: 0;
+    }
+    p {
+      margin-bottom: 10px;
+    }
+  }
+}

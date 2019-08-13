@@ -1,0 +1,327 @@
++function ($) {
+
+    $('#password_toggle').click(function(e) {
+        e.preventDefault();
+        $('#password_change').slideToggle('fast');
+    });
+
+    $( "form#gag_get_consultants" ).submit(function (event) {
+        event.preventDefault();
+
+        $(this).find("p.error-message").remove();
+        $(this).find(".form-error").removeClass("form-error");
+
+        errors = 0;
+
+        $("select[name=industry]").each(function () {
+            if ($(this).val().length === 0) {
+                add_form_error_message(this,"<p class='error-message'>Industry field is mandatory.</p>");
+                errors += 1;
+            }
+        });
+
+        if (errors > 0) { return false; }
+
+        var loader = $(this);
+        var form_data = $(this).serialize();
+        var adminurl = $(this).data("admin-url");
+        console.log(form_data);
+        load_ajax_users(form_data,adminurl,loader);
+    });
+
+    $( "form#gag_get_consultants_byname" ).submit(function (event) {
+        event.preventDefault();
+
+        $(this).find("p.error-message").remove();
+        $(this).find(".form-error").removeClass("form-error");
+
+        errors = 0;
+
+        $("input[name=last_name]").each(function () {
+            if ($(this).val().length === 0) {
+                add_form_error_message(this,"<p class='error-message'>Last Name field is mandatory.</p>");
+                errors += 1;
+            }
+        });
+
+        if (errors > 0) { return false; }
+
+        var loader = $(this);
+        var form_data = $(this).serialize();
+        var adminurl = $(this).data("admin-url");
+        console.log(form_data);
+        load_ajax_users(form_data,adminurl,loader);
+    });
+
+    $("select.gag-profile-select").each(function () {
+        var $current_option = $(this).data("prevoption");
+        $(this).find("option").each(function () {
+            if ($(this).text() == $current_option) {
+                $(this).attr("selected","selected");
+            }
+        })
+    });
+
+    /* Start and End date sync */
+    var dates = $( "#startdate, #enddate" ).datepicker({
+        changeMonth: true,
+        changeYear: true,
+        minDate: new Date(),
+        onSelect: function( selectedDate ) {
+            var option = this.id == "startdate" ? "minDate" : "maxDate",
+                instance = $( this ).data( "datepicker" ),
+                date = $.datepicker.parseDate(
+                    instance.settings.dateFormat ||
+                    $.datepicker._defaults.dateFormat,
+                    selectedDate, instance.settings );
+            dates.not( this ).datepicker( "option", option, date );
+        }
+    });
+
+    $("#reactdate").datepicker({
+        changeMonth: true,
+        changeYear: true
+    });
+
+    $("#change_password_btn").click(function (e) {
+        e.preventDefault();
+        var minlength = $('#gag_change_password').data("minlength");
+        $(".change-password-messages").html('');
+        if ($('#pass_1').val() === '') {
+            gag_form_validate($('#pass_1'));
+        } else if ($('#pass_2').val() === '') {
+            gag_form_validate($('#pass_2'));
+        } else if ($('#pass_2').val() !== $('#pass_1').val()) {
+            $(".change-password-messages").html('<p style="color: red;">Passwords do not match</p>');
+        } else if ((minlength !== '') && ($('#pass_2').val().length < minlength)) {
+            console.log(minlength);
+            console.log($('#pass_2').val().length);
+
+            $(".change-password-messages").html('<p style="color: red;">Password too short</p>');
+        } else {
+            $(".change-password-overlay").show();
+            var ajaxurl = $('#gag_change_password').data("url");
+
+            var pw_data = {
+                'action': 'gag_change_password',
+                'gag_pw_action': 'change_password',
+                'new_password': $('#pass_2').val()
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: ajaxurl,
+                data: pw_data,
+                success: function (response) {
+                    if (response === 'success') {
+                        $(".change-password-overlay").hide();
+                        $(".change-password-messages").html('<p style="color: green">Password Successfully Changed</p>');
+                        $('.change-password-form').hide();
+                    } else if (response === 'error') {
+                        $(".change-password-overlay").hide();
+                        $(".change-password-messages").html('<p style="color: red">Error Changing Password</p>');
+                        $('.change-password-form').show();
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    //$content.html($.parseJSON(jqXHR.responseText) + ' :: ' + textStatus + ' :: ' + errorThrown);
+                    console.log('Error');
+                    console.log(jqXHR);
+                }
+
+            });
+
+        }
+    });
+
+
+    //Hide reg fields depending on role
+    $("#gag_registration_role").each(function () {
+        var role = $(this).data("role");
+        if (role === 'employer') {
+            $(".pms-field-subscriptions").addClass("hidden");
+            $("input[name=pms_register]").val("Register for Free");
+        }
+        if (role === 'consultant') {
+            $(".pms-user-company-field").addClass("hidden");
+            $("#member_company").val("none");
+        }
+
+
+
+        $("#pms-submit-button-loading-placeholder-text").text($("input[name=pms_register]").val());
+
+    });
+
+
+    //Re-arrange fields
+
+    $("#pms_register-form").each(function () {
+        //$(this).find("input[type=text]").attr("required","required");
+        var title_field = $(this).find(".pms-user-title-field");
+        var username_field = $(this).find(".pms-user-login-field");
+        var email_field = $(this).find(".pms-user-email-field");
+        $(title_field).remove().insertBefore(".pms-pass1-field");
+        $(username_field).remove().insertBefore(".pms-pass1-field");
+        $(email_field).remove().insertBefore(".pms-pass1-field");
+
+        $(".pms-first-name-field").find("label").text("First Name *");
+        $(".pms-last-name-field").find("label").text("Last Name *");
+
+    });
+
+
+    //Reg form validation
+    $("#pms_register-form").submit(function () {
+        var min_cn_length = 2;
+        var min_un_length = 7;
+        var min_pw_length = 7;
+        var min_fn_lenght = 2;
+        var min_ln_length = 2;
+        var min_title_length = 2;
+        var errors = 0;
+
+        $(this).find("p.error-message").remove();
+        $(this).find("li").removeClass("form-error");
+
+        $("#member_company").each(function () {
+            if ($(this).val().length < min_cn_length) {
+                console.log(this);
+                add_form_error(this,min_cn_length);
+                errors += 1;
+            }
+        });
+
+        $("#member_jobtitle").each(function () {
+            if ($(this).val().length < min_title_length) {
+                console.log(this);
+                add_form_error(this,min_title_length);
+                errors += 1;
+            }
+        });
+
+        $("#pms_user_login").each(function () {
+            if ($(this).val().length < min_un_length) {
+                add_form_error(this,min_un_length);
+                errors += 1;
+            }
+        });
+
+        $("#pms_pass1").each(function () {
+            if ($(this).val().length < min_pw_length) {
+                add_form_error(this,min_pw_length);
+                errors += 1;
+            }
+        });
+
+        $("#pms_first_name").each(function () {
+            if ($(this).val().length < min_fn_lenght) {
+                add_form_error(this,min_fn_lenght);
+                errors += 1;
+            }
+        });
+
+        $("#pms_last_name").each(function () {
+            if ($(this).val().length < min_ln_length) {
+                add_form_error(this,min_ln_length);
+                errors += 1;
+            }
+        });
+
+        $("#pms_user_email").each(function () {
+            if (!isValidEmailAddress($(this).val())) {
+                add_form_error_message(this,"<p class='error-message'>Must be valid Email.</p>");
+                errors += 1;
+            }
+        });
+
+        if (errors > 0) { $("input[name=pms_register]").removeClass("pms-submit-disabled"); return false; }
+    });
+
+
+
+
+
+    function add_form_error(element,min_length) {
+        $(element).parent().append("<p class='error-message'>Type at least "+min_length+" characters.</p>").addClass("form-error");
+    }
+
+    function add_form_error_message(element,message) {
+        $(element).parent().append(message).addClass("form-error");
+    }
+
+    function gag_form_validate(element) {
+        element.effect("highlight", { color: "#F2DEDE" }, 1500);
+        element.parent().effect('shake');
+    }
+
+    function load_ajax_users(form_data,adminurl,loader) {
+        var $content = $('#gag_members_directory');
+        var $loader = loader;
+        var $displayedItems = 10;
+
+        $content.find('button').remove();
+
+        if (!($loader.hasClass('post_loading_loader') || $loader.hasClass('post_no_more_posts'))) {
+            $.ajax({
+                type: 'POST',
+                url: adminurl,
+                data: form_data,
+                beforeSend : function () {
+                    $content.addClass('post_loading_loader').html('');
+                },
+                success: function (data) {
+                    console.log(data);
+
+                    var $data = $(data);
+                    if ($data.length) {
+                        var $newElements = $data.css({ opacity: 0 });
+                        $content.append($data);
+                        goToByScroll('gag_members_directory');
+                        $newElements.animate({ opacity: 1 });
+                        $content.removeClass('post_loading_loader');
+                        $content.parent().animate({ opacity: 1 });
+                        if ($data.length > $displayedItems) {
+                            $content.loadMoreResults({
+                                displayedItems: $displayedItems,
+                                tag: {
+                                    'name': 'section',
+                                    'class': 'search-results-item'
+                                }
+                            });
+                        }
+
+
+                    } else {
+                        $content.removeClass('post_loading_loader').addClass('post_no_more_posts').html('Nothing found.');
+                        goToByScroll('gag_members_directory');
+                        $content.parent().animate({ opacity: 1 });
+                    }
+                },
+                error : function (jqXHR, textStatus, errorThrown) {
+                    $content.html($.parseJSON(jqXHR.responseText) + ' :: ' + textStatus + ' :: ' + errorThrown);
+                    console.log('Error');
+                    console.log(jqXHR);
+                },
+            });
+        }
+        return false;
+    }
+
+    function isValidEmailAddress(emailAddress) {
+        var pattern = /^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[ \t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([ \t]*\r\n)?[ \t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
+        return pattern.test(emailAddress);
+    }
+
+    function goToByScroll(id){
+        // Remove "link" from the ID
+        id = id.replace("link", "");
+        // Scroll
+        $('html,body').animate({
+                scrollTop: $("#"+id).offset().top-50},
+            'slow');
+    }
+
+
+
+}(jQuery);
